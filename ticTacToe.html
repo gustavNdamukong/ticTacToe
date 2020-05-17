@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JavaScript</title>
+	<style type="text/css">
+	
+		#dad{
+
+			border:5px solid darkgreen;
+			width: 280px;
+			height:280px;
+			border-radius: 5px;
+			display: inline-block;
+			background-color: green;
+			font-weight: bold;
+			color: #fff;
+			text-align: center;
+			}	
+			
+			#mum{
+
+					border:5px solid hotpink;
+					width: 280px;
+					height:280px;
+					border-radius: 5px;
+					display: inline-block;
+					background-color:red;
+					font-weight: bold;
+					color: #fff;
+					text-align: center;
+				}
+
+		#girl
+			{
+				border:5px solid hotpink; 
+				width: 280px;
+				height:280px;
+				border-radius: 5px;
+				display: inline-block;
+				background-color: aqua;
+				font-weight: bold;
+				color: #fff;
+				text-align: center;
+			}
+
+		#boy
+			{
+				border:5px solid red;
+				width: 280px;
+				height:280px;
+				border-radius: 5px;
+				display: inline-block;
+				background-color:blue;
+				font-weight: bold;
+				color: #fff;
+				text-align: center;
+			}
+		.jsPtags {
+			position:absolute;
+			top:20%;
+			left:8%;
+		}
+
+		#ticTacTable td {
+			border-radius: 4px;
+		}
+ 
+
+	</style>
+</head>
+<body>
+
+
+<audio controls id="myAudio" style="display: none;">
+  <source src="technoMusic.mp3" type="audio/mp3">
+  Your browser does not support the audio tag.
+</audio>
+
+<audio controls id="myFlashAudio" style="display: none;">
+  <source src="flash.mp3" type="audio/mp3">
+  Your browser does not support the audio tag.
+</audio>
+
+
+	<div style="margin: 0 auto;height: 100px;width:500px;">
+		<div style="display:inline-block;float:left;width:200;height:200;border-radius:4px;font-weight:bolder;color:#fff;position:relative;line-height: 1em;"><button id="scoreO" style="width:200;height:200;border-radius:4px;background-color: blue;font-weight:bolder;color:#fff;">0</button></div>
+
+		<div style="display:inline-block;float:right;width:200;height:200;border-radius:4px;font-weight:bolder;color:#fff;position:relative;line-height: 1em;">
+		<button id="scoreX" style="width:200;height:200;border-radius:4px;background-color: red;font-weight:bolder;color:#fff;">0</button>
+		</div>
+	</div>
+
+	<div style='position:relative;width:300px;margin: 0 auto;'><!--div to house the table-->
+		<table border="2" id="ticTacTable" style="margin: 0 auto;width: 300px;height:300px;text-align: center;">
+		<caption>TIC TAC TOE</caption>
+
+		<tr><td id="a" onclick="callAClick(e)">A</td>
+			<td id="b" onclick="callBClick(e)">B</td>
+			<td id="c" onclick="callCClick(e)">C</td>
+		</tr>
+
+		<tr><td id="d" onclick="callDClick(e)">D</td>
+			<td id="e" onclick="callEClick(e)">E</td>
+			<td id="f" onclick="callFClick(e)">F</td>
+		</tr>
+
+		<tr><td id="g" onclick="callGClick(e)">G</td>
+			<td id="h" onclick="callHClick(e)">H</td>
+			<td id="i" onclick="callIClick(e)">I</td>
+		</tr>
+
+		</table>
+		<button onmouseout="restoreBtnColor()" onmouseover="changeRefreshBtnColor()" id='replayBtn' style=' display:none; position:absolute; width: 300px;height: 50px;border-radius:6px;background-color: #303;color:#fff;' onclick='refreshPage()'>REPLAY</button>
+	</div><!--end of div to house the table-->
+
+
+
+	
+
+	
+
+
+
+<script type="text/javascript">
+	/*
+	This is a flag. 
+	All the functions will first of all check this flag
+		if it is null, there4 its the first turn, so play o
+		if its o then play X
+		if its x then play o
+	*/
+
+	let oScores = {
+		'score': 0,
+		'horizonTopMatch': 'no',
+		'horizonBottomMatch': 'no',
+		'verticalLeftMatch': 'no',
+		'verticalRightMatch': 'no',
+		'verticalCenterMatch': 'no',
+		'horizonCenterMatch':'no',
+		'diagonalFowardMatch':'no',
+		'diagonalBackMatch':'no',
+	} 
+
+	let xScores = {
+		'score': 0,
+		'horizonTopMatch': 'no',
+		'horizonBottomMatch': 'no',
+		'verticalLeftMatch': 'no',
+		'verticalRightMatch': 'no',
+		'verticalCenterMatch': 'no',
+		'horizonCenterMatch':'no',
+		'diagonalFowardMatch':'no',
+		'diagonalBackMatch':'no',
+	}
+
+	let Game = 
+	{
+		"squares":9,
+		'endGame': function()
+						{
+							winner = "";
+							if(xScores['score'] > oScores['score']){
+									winner = "X";
+							}
+							else if (oScores['score'] > xScores['score'])
+							{
+									winner = "O";
+							}
+							else
+							{
+									winner = "Draw";
+							}
+
+							pauseAudio();
+
+							alert("The winner is "  + winner);
+
+							//display btn for user to refresh game
+							let replayBtn = document.getElementById('replayBtn');
+
+							replayBtn.style.display = 'block';
+							
+						}
+	}
+
+	let turnFlag = null;
+
+	let gameStarted = "no";
+
+
+		/*
+	* When a match is made of three squares, flash the squares that have been
+			won.
+	*/
+	function flash(one, two, three, color2, color1)
+	{
+		let flashAudio = document.getElementById("myFlashAudio");
+		flashAudio.play(); 
+		
+		let interval = setInterval(flashAndStop,10);
+		function flashAndStop()
+		{
+			one.style.backgroundColor = color2;
+			two.style.backgroundColor = color2;
+			three.style.backgroundColor = color2;
+			setTimeout(function(){
+						clearInterval(interval);
+						one.style.backgroundColor = color1;
+						two.style.backgroundColor = color1;
+						three.style.backgroundColor = color1;
+						},500);
+		}
+
+	}
+
+
+
+	function playAudio()
+	{
+		let audio = document.getElementById("myAudio");
+		audio.currentTime = 32;
+		audio.play();
+	}
+
+	function pauseAudio()
+	{
+		let audio = document.getElementById("myAudio");
+		audio.pause();
+	}
+
+	function changeRefreshBtnColor()
+	{
+		let refreshBtn = document.getElementById('replayBtn');
+		refreshBtn.style.backgroundColor = '#00FF00';
+	}
+
+	function restoreBtnColor()
+	{
+		let refreshBtn = document.getElementById('replayBtn');
+		refreshBtn.style.backgroundColor = '#303';
+	}
+
+
+	function refreshPage()
+	{
+		window.location.reload();
+	}
+
+
+	function checkScore() 
+	{
+		if (Game["squares"] != 0) 
+		{
+			Game["squares"] -= 1;
+
+			if (Game["squares"] == 0)
+			{
+				Game.endGame();
+			}
+		}
+
+		if (gameStarted == "no") 
+		{
+			playAudio();
+			gameStarted = 'yes';
+		}
+	}
+
+	function callAClick(e)
+	{
+		let a = document.getElementById('a');
+		//check the flag
+		if ((a.innerHTML == 'O') || (a.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			a.innerHTML = 'O';
+			a.style.backgroundColor = 'blue';
+			a.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			a.innerHTML = 'X';
+			a.style.backgroundColor = 'red';
+			a.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			a.innerHTML = 'O';
+			a.style.backgroundColor = 'blue';
+			a.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		} 
+	}
+
+	function callBClick(e)
+	{
+		let b = document.getElementById('b');
+		//check the flag
+		if ((b.innerHTML == 'O') || (b.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			b.innerHTML = 'O';
+			b.style.backgroundColor = 'blue';
+			b.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			b.innerHTML = 'X';
+			b.style.backgroundColor = 'red';
+			b.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			b.innerHTML = 'O';
+			b.style.backgroundColor = 'blue';
+			b.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callCClick(e)
+	{
+		let c = document.getElementById('c');
+		//check the flag
+		if ((c.innerHTML == 'O') || (c.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			c.innerHTML = 'O';
+			c.style.backgroundColor = 'blue';
+			c.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			c.innerHTML = 'X';
+			c.style.backgroundColor = 'red';
+			c.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			c.innerHTML = 'O';
+			c.style.backgroundColor = 'blue';
+			c.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callDClick(e)
+	{
+		let d = document.getElementById('d');
+		//check the flag
+		if ((d.innerHTML == 'O') || (d.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			d.innerHTML = 'O';
+			d.style.backgroundColor = 'blue';
+			d.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			d.innerHTML = 'X';
+			d.style.backgroundColor = 'red';
+			d.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			d.innerHTML = 'O';
+			d.style.backgroundColor = 'blue';
+			d.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callEClick(ev)
+	{
+		let e = document.getElementById('e');
+		//check the flag
+		if ((e.innerHTML == 'O') || (e.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			e.innerHTML = 'O';
+			e.style.backgroundColor = 'blue';
+			e.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			e.innerHTML = 'X';
+			e.style.backgroundColor = 'red';
+			e.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			e.innerHTML = 'O';
+			e.style.backgroundColor = 'blue';
+			e.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callFClick(e)
+	{
+		let f = document.getElementById('f');
+		//check the flag
+		if ((f.innerHTML == 'O') || (f.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			f.innerHTML = 'O';
+			f.style.backgroundColor = 'blue';
+			f.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			f.innerHTML = 'X';
+			f.style.backgroundColor = 'red';
+			f.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			f.innerHTML = 'O';
+			f.style.backgroundColor = 'blue';
+			f.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callGClick(e)
+	{
+		let g = document.getElementById('g');
+		//check the flag
+		if ((g.innerHTML == 'O') || (g.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			g.innerHTML = 'O';
+			g.style.backgroundColor = 'blue';
+			g.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			g.innerHTML = 'X';
+			g.style.backgroundColor = 'red';
+			g.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			g.innerHTML = 'O';
+			g.style.backgroundColor = 'blue';
+			g.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callHClick(e)
+	{
+		let h = document.getElementById('h');
+		//check the flag
+		if ((h.innerHTML == 'O') || (h.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			h.innerHTML = 'O';
+			h.style.backgroundColor = 'blue';
+			h.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			h.innerHTML = 'X';
+			h.style.backgroundColor = 'red';
+			h.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			h.innerHTML = 'O';
+			h.style.backgroundColor = 'blue';
+			h.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function callIClick(e)
+	{
+		let i = document.getElementById('i');
+		//check the flag
+		if ((i.innerHTML == 'O') || (i.innerHTML == 'X'))
+		{
+			return;
+		}
+		else if (turnFlag == null) { 
+			i.innerHTML = 'O';
+			i.style.backgroundColor = 'blue';
+			i.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+		else if (turnFlag == 'O')
+		{
+			i.innerHTML = 'X';
+			i.style.backgroundColor = 'red';
+			i.style.color = 'white';
+			turnFlag = 'X'
+
+			//update X scores
+			updateXScore();
+		}
+		else
+		{
+			i.innerHTML = 'O';
+			i.style.backgroundColor = 'blue';
+			i.style.color = 'white';
+			turnFlag = 'O'
+
+			//update O scores
+			updateOScore();
+		}
+	}
+
+	function updateOScore()
+	{
+		//'horizonTopMatch': 'no',
+		let a = document.getElementById('a');
+		let b = document.getElementById('b');
+		let c = document.getElementById('c');
+
+		if (oScores['horizonTopMatch'] != 'yes')
+		{
+			if ((a.innerHTML == 'O') && (b.innerHTML == 'O') && (c.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score'];
+				oScores['horizonTopMatch'] = 'yes'; 
+				flash(a, b, c,'green', 'blue');
+			}
+		}
+
+		//'horizonBottomMatch': 'no',
+		if (oScores['horizonBottomMatch'] != 'yes')
+		{
+			let g = document.getElementById('g');
+			let h = document.getElementById('h');
+			let i = document.getElementById('i');
+			if ((g.innerHTML == 'O') && (h.innerHTML == 'O') && (i.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score']; 
+				oScores['horizonBottomMatch'] = 'yes';
+				flash(g, h, i,'green', 'blue');
+			}
+		}
+
+		//verticalLeftMatch-a and g already selected
+		let d = document.getElementById('d');
+
+		if (oScores['verticalLeftMatch'] != 'yes')
+		{
+			if ((a.innerHTML == 'O') && (d.innerHTML == 'O') && (g.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score'];
+				oScores['verticalLeftMatch'] = 'yes';
+				flash(a, d, g,'green', 'blue'); 
+			}
+		}
+
+		//verticalRightMatch-c,f,i (c and i already selected)
+		let f = document.getElementById('f');
+
+		if (oScores['verticalRightMatch'] != 'yes')
+		{
+			if ((c.innerHTML == 'O') && (f.innerHTML == 'O') && (i.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score'];
+				oScores['verticalRightMatch'] = 'yes';
+				flash(c, f, i,'green', 'blue');  
+			}
+		}
+
+		//verticalCenterMatch-b, e, h, (b and h already selected)
+		let e = document.getElementById('e');
+
+		if (oScores['verticalCenterMatch'] != 'yes')
+		{
+			if ((b.innerHTML == 'O') && (e.innerHTML == 'O') && (h.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score'];
+				oScores['verticalCenterMatch'] = 'yes';
+				flash(b, e, h,'green', 'blue'); 
+			}
+		}
+
+
+		//horizonCenterMatch-def (all already been selected)
+
+		if (oScores['horizonCenterMatch'] != 'yes')
+		{
+			if ((d.innerHTML == 'O') && (e.innerHTML == 'O') && (f.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score']; 
+				oScores['horizonCenterMatch'] = 'yes';
+				flash(d, e, f,'green', 'blue');
+			}
+		}
+
+		//diagonalFowardMatch-ceg (all already selected)
+		if (oScores['diagonalFowardMatch'] != 'yes')
+		{
+			if ((c.innerHTML == 'O') && (e.innerHTML == 'O') && (g.innerHTML == 'O'))
+			{
+				oScores['score'] += 1;
+				scoreO.innerHTML = oScores['score'];
+				oScores['diagonalFowardMatch'] = 'yes';
+				flash(c, e, g,'green', 'blue'); 
+			}
+		}
+
+		//'diagonalBackMatch-aei ()
+		if (oScores['diagonalBackMatch'] != 'yes')
+		{
+			if ((a.innerHTML == 'O') && (e.innerHTML == 'O') && (i.innerHTML == 'O'))
+			{
+				oScores['score'] += 1; 
+				scoreO.innerHTML = oScores['score'];
+				oScores['diagonalBackMatch'] = 'yes';
+				flash(a, e, i,'green', 'blue');
+			}	
+		}
+
+		checkScore();
+	}
+
+
+	/*
+	ToDO: Write code to check that no previous matches have already been made before for updating scores.
+
+	*/
+	function updateXScore()
+	{
+		//horizonTopMatch-abc
+		let a = document.getElementById('a');
+		let b = document.getElementById('b');
+		let c = document.getElementById('c');
+		if (xScores['horizonTopMatch'] != 'yes')
+		{
+			if ((a.innerHTML == 'X') && (b.innerHTML == 'X') && (c.innerHTML == 'X'))
+			{
+					xScores['score'] += 1; 
+					scoreX.innerHTML = xScores['score'];
+					xScores['horizonTopMatch'] = 'yes'; 
+					flash(a, b, c,'green', 'red');
+			}
+		}
+
+		//horizonBottomMatch-ghi
+		let g = document.getElementById('g');
+		let h = document.getElementById('h');
+		let i = document.getElementById('i');
+		if (xScores['horizonBottomMatch'] != 'yes')
+		{
+			if ((g.innerHTML == 'X') && (h.innerHTML == 'X') && (i.innerHTML == 'X'))
+			{
+					xScores['score'] += 1; 
+					scoreX.innerHTML = xScores['score'];
+					xScores['horizonBottomMatch'] = 'yes';
+					flash(g, h, i,'green', 'red');
+			}
+		}
+
+		//verticalLeftMatch-adg (a and g already selected)
+		let d = document.getElementById('d');
+		if (xScores['verticalLeftMatch'] != 'yes')
+		{
+			if ((a.innerHTML == 'X') && (d.innerHTML == 'X') && (g.innerHTML == 'X'))
+			{
+					xScores['score'] += 1; 
+					scoreX.innerHTML = xScores['score'];
+					xScores['verticalLeftMatch'] = 'yes'; 
+					flash(a, d, g,'green', 'red');
+			}
+		}
+
+		//verticalRightMatch-c and i already selected
+		let f = document.getElementById('f');
+		if (xScores['verticalRightMatch'] != 'yes')
+		{
+			if ((c.innerHTML == 'X') && (f.innerHTML == 'X') && (i.innerHTML == 'X'))
+			{
+					xScores['score'] += 1; 
+					scoreX.innerHTML = xScores['score'];
+					xScores['verticalRightMatch'] = 'yes';
+					flash(c, f, i,'green', 'red');
+			}
+		}
+
+		//verticalCenterMatch-b, e, h, (b and h already selected)
+		let e = document.getElementById('e');
+		if (xScores['verticalCenterMatch'] != 'yes')
+		{
+			if ((b.innerHTML == 'X') && (e.innerHTML == 'X') && (h.innerHTML == 'X'))
+			{
+				xScores['score'] += 1; 
+				scoreX.innerHTML = xScores['score'];
+				xScores['verticalCenterMatch'] = 'yes'; 
+				flash(b, e, h,'green', 'red');
+			}
+		}
+
+
+		//horizonCenterMatch-def (all already been selected)
+		if (xScores['horizonCenterMatch'] != 'yes')
+		{
+			if ((d.innerHTML == 'X') && (e.innerHTML == 'X') && (f.innerHTML == 'X'))
+			{
+					xScores['score'] += 1; 
+					scoreX.innerHTML = xScores['score'];
+					xScores['horizonCenterMatch'] = 'yes';
+					flash(d, e, f,'green', 'red');
+			}
+		}
+
+		//diagonalFowardMatch-ceg (all already selected)
+		if (xScores['diagonalFowardMatch'] != 'yes')
+		{
+			if ((c.innerHTML == 'X') && (e.innerHTML == 'X') && (g.innerHTML == 'X'))
+			{
+				xScores['score'] += 1; 
+				scoreX.innerHTML = xScores['score'];
+				xScores['diagonalFowardMatch'] = 'yes';
+				flash(c, e, g,'green', 'red'); 
+			}
+		}
+
+		//'diagonalBackMatch-aei ()
+		if (xScores['diagonalBackMatch'] != 'yes')
+		{
+			if ((a.innerHTML == 'X') && (e.innerHTML == 'X') && (i.innerHTML == 'X'))
+			{
+					xScores['score'] += 1; 
+					scoreX.innerHTML = xScores['score'];
+					xScores['diagonalBackMatch'] = 'yes';
+					flash(a, e, i,'green', 'red');
+			}
+		}
+
+		checkScore();
+	}
+
+</script>
+</body>
+</html>
